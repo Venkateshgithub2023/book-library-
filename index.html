@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Book Library</title>
+    <style>
+	/* styles.css */
+
+    div {
+    background: linear-gradient(to bottom, #33ccff 0%, #ff99cc 100%);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.search-bar {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.search-bar input {
+    width: 40%;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.book-form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.book-form input {
+    margin-right: 10px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.book-form button {
+    padding: 10px 20px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.book-list, .borrowing-history {
+    background-color: white;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 5px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+li:last-child {
+    border-bottom: none;
+}
+
+button.borrow-btn {
+    padding: 5px 10px;
+    background-color: #5bc0de;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+button.borrow-btn.borrowed {
+    background-color: #d9534f;
+}
+
+    </style>
+</head>
+<body> <center>
+    <div class="container">
+        <h1>Book Library</h1>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search for books..." onkeyup="searchBooks()">
+        </div>
+
+        <!-- Book Form -->
+        <div class="book-form">
+            <h2>Add a New Book</h2>
+            <input type="text" id="title" placeholder="Title">
+            <input type="text" id="author" placeholder="Author">
+            <input type="text" id="category" placeholder="Category">
+            <button onclick="addBook()">Add Book</button>
+        </div>
+
+        <!-- Book List -->
+        <div class="book-list">
+            <h2>Book Collection</h2>
+            <ul id="bookList"></ul>
+        </div>
+
+        <!-- Borrowing History -->
+        <div class="borrowing-history">
+            <h2>Borrowing History</h2>
+            <ul id="borrowList"></ul>
+        </div>
+
+        <!-- Borrow Book Form -->
+        <div class="borrow-form">
+            <h2>Borrow a Book</h2>
+            <select id="bookSelect"></select>
+            <button onclick="borrowBook()">Borrow</button>
+        </div>
+    </div>
+
+    <script>// script.js
+
+// Book Constructor
+function Book(title, author, category) {
+    this.title = title;
+    this.author = author;
+    this.category = category;
+    this.isBorrowed = false;
+}
+
+// Array to Store Books
+let books = [];
+let borrowHistory = [];
+
+// Function to Add Book
+function addBook() {
+    const title = document.getElementById('title').value;
+    const author = document.getElementById('author').value;
+    const category = document.getElementById('category').value;
+
+    if (title && author && category) {
+        const book = new Book(title, author, category);
+        books.push(book);
+        displayBooks();
+    }
+}
+
+// Function to Display Books
+function displayBooks() {
+    const bookList = document.getElementById('bookList');
+    bookList.innerHTML = '';
+
+    books.forEach((book, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${book.title}</strong> by ${book.author} [${book.category}]
+                        <button class="borrow-btn ${book.isBorrowed ? 'borrowed' : ''}" 
+                        onclick="toggleBorrow(${index})">${book.isBorrowed ? 'Return' : 'Borrow'}</button>`;
+        bookList.appendChild(li);
+    });
+}
+
+// Function to Toggle Borrowing Status
+function toggleBorrow(index) {
+    const book = books[index];
+    book.isBorrowed = !book.isBorrowed;
+
+    if (book.isBorrowed) {
+        borrowHistory.push({ title: book.title, date: new Date().toLocaleDateString() });
+    }
+    
+    displayBooks();
+    displayBorrowHistory();
+}
+
+// Function to Display Borrowing History
+function displayBorrowHistory() {
+    const borrowList = document.getElementById('borrowList');
+    borrowList.innerHTML = '';
+
+    borrowHistory.forEach((record) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${record.title}</strong> borrowed on ${record.date}`;
+        borrowList.appendChild(li);
+    });
+}
+
+// Function to Search Books
+function searchBooks() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const filteredBooks = books.filter(book => 
+        book.title.toLowerCase().includes(searchInput) ||
+        book.author.toLowerCase().includes(searchInput) ||
+        book.category.toLowerCase().includes(searchInput)
+    );
+
+    const bookList = document.getElementById('bookList');
+    bookList.innerHTML = '';
+
+    filteredBooks.forEach((book, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${book.title}</strong> by ${book.author} [${book.category}]
+                        <button class="borrow-btn ${book.isBorrowed ? 'borrowed' : ''}" 
+                        onclick="toggleBorrow(${index})">${book.isBorrowed ? 'Return' : 'Borrow'}</button>`;
+        bookList.appendChild(li);
+    });
+}
+</script>
+</body>
+</html>
